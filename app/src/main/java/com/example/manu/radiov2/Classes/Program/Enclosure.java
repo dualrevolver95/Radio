@@ -1,15 +1,22 @@
 
-package com.example.manu.radiov2.Classes;
+package com.example;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class StreamingInfo {
+public class Enclosure {
 
+    private String url;
     private String type;
-    private List<Datum> data = null;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getType() {
         return type;
@@ -17,14 +24,6 @@ public class StreamingInfo {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public List<Datum> getData() {
-        return data;
-    }
-
-    public void setData(List<Datum> data) {
-        this.data = data;
     }
 
     public Map<String, Object> getAdditionalProperties() {

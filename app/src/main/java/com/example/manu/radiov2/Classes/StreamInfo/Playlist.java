@@ -1,5 +1,5 @@
 
-package com.example.manu.radiov2.Classes;
+package com.example.manu.radiov2.Classes.StreamInfo;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,29 +1,32 @@
 package com.example.manu.radiov2.Activitys;
 
 import android.app.ProgressDialog;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaSession;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.view.Window;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.manu.radiov2.Classes.AProgram;
-import com.example.manu.radiov2.Classes.StreamingInfo;
-import com.example.manu.radiov2.Classes.Track;
+import com.example.Item;
+import com.example.Program;
+import com.example.manu.radiov2.Classes.StreamInfo.StreamingInfo;
 import com.example.manu.radiov2.Interfaces.RadioAPI;
-import com.google.gson.FieldNamingPolicy;
+import com.example.manu.radiov2.adapter.ProgramAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.example.manu.radiov2.R;
+import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,12 +37,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton btnP,btnS;
+    ListView lv;
+    private ImageView img;
     private TextView song,artist,album;
     private RadioAPI service;
     private boolean playPause;
     private MediaPlayer mediaPlayer;
     private ProgressDialog progressDialog;
     private boolean initialStage = true;
+    private ArrayList<Item> items = new ArrayList<>();
     private final String STREAM = "http://procyon.shoutca.st:8232/;";
 
     @Override
@@ -47,17 +53,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //Declaracion de aspectos graficos
+        lv = (ListView) findViewById(R.id.LVP);
         btnP = (ImageButton) findViewById(R.id.BPlay);
         btnS = (ImageButton) findViewById(R.id.BStop);
         song = (TextView) findViewById(R.id.Song);
         artist = (TextView) findViewById(R.id.Artist);
         album = (TextView) findViewById(R.id.Album);
+        img = (ImageView) findViewById(R.id.AlbumImg);
+
+        //animacion flash
+        imgChange();
 
         //Declaracion del media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         progressDialog = new ProgressDialog(this);
+
         //Listener para el boton Play(Pone a escuchar el stream)
         btnP.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
                     if (initialStage) {
                         new Player().execute(STREAM);
+                        conectionM();
+
                     } else {
                         if (!mediaPlayer.isPlaying())
                             mediaPlayer.start();
@@ -90,13 +105,45 @@ public class MainActivity extends AppCompatActivity {
 
                     playPause = false;
                 }
-                conection();
+            }
+        });
+        conectionP();
+    }
+
+
+    //Conexion para obtener la programacion
+    public void conectionP(){
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        Retrofit retrofit2 = new Retrofit.Builder()
+                .baseUrl("https://procyon.shoutca.st/recentfeed/yireh/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        service = retrofit2.create(RadioAPI.class);
+
+        Call<Program> call2 = service.getProgram();
+        call2.enqueue(new Callback<Program>() {
+            @Override
+            public void onResponse(Call<Program> call, Response<Program> response) {
+                for (int i = 0; i< response.body().getItems().size();i++){
+                    items.add(response.body().getItems().get(i));
+                }
+                ProgramAdapter adapter = new ProgramAdapter(getApplicationContext(),R.layout.adapter_view,items);
+                lv.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(Call<Program> call, Throwable t) {
+
             }
         });
     }
 
-
-    public void conection(){
+    //Conexion para obtener la cancion actual
+    public void conectionM(){
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -112,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<StreamingInfo>() {
             @Override
             public void onResponse(Call<StreamingInfo> call, Response<StreamingInfo> response) {
-                Log.d("Token",response.body().getData().get(0).getTrack().getTitle());
+                LoadImageFromUrl(response.body().getData().get(0).getTrack().getImageurl());
                 album.setText("Album: "+response.body().getData().get(0).getTrack().getAlbum());
                 song.setText("Titulo: " + response.body().getData().get(0).getTrack().getTitle());
                 artist.setText("Artista: "+response.body().getData().get(0).getTrack().getArtist());
@@ -120,9 +167,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<StreamingInfo> call, Throwable t) {
-                System.out.print("manco");
             }
         });
+    }
+
+    private void LoadImageFromUrl(String imageurl) {
+        Picasso.with(this).load(imageurl).placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(img);
     }
 
     @Override
@@ -184,5 +236,20 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.setMessage("Buffering...");
             progressDialog.show();
         }
+    }
+
+    //Animaion de imagenFlash
+    public void imgChange(){
+        AnimationDrawable animation = new AnimationDrawable();
+        animation.addFrame(getResources().getDrawable(R.drawable.image1), 5000);
+        animation.addFrame(getResources().getDrawable(R.drawable.image2), 5000);
+        animation.addFrame(getResources().getDrawable(R.drawable.image3), 5000);
+        animation.setOneShot(false);
+
+        ImageView imageAnim =  (ImageView) findViewById(R.id.flash);
+        imageAnim.setBackgroundDrawable(animation);
+
+        // start the animation!
+        animation.start();
     }
 }

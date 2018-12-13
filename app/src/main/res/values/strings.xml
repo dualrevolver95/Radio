@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">RadioV2</string>
+    <string name="app_name">Yireh Radio</string>
+    <string name="textSongSize">11dp</string>
 </resources>
