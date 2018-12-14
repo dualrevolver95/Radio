@@ -1,24 +1,31 @@
 package com.example.manu.radiov2.Activitys;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.Item;
 import com.example.Program;
 import com.example.manu.radiov2.Classes.StreamInfo.StreamingInfo;
 import com.example.manu.radiov2.Interfaces.RadioAPI;
+import com.example.manu.radiov2.adapter.DrawerAdapter;
 import com.example.manu.radiov2.adapter.ProgramAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,7 +44,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private ImageButton btnP,btnS;
-    ListView lv;
+    private DrawerLayout mDrawerLayout;
+    private ArrayList<String> mopc = new ArrayList<>();
+    private ListView lv,mDrawerList;
     private ImageView img;
     private TextView song,artist,album;
     private RadioAPI service;
@@ -65,7 +74,16 @@ public class MainActivity extends AppCompatActivity {
 
         //animacion flash
         imgChange();
+        //Menu desplegable
+        setDrawerMenu();
+        //Se prepara la radio
+        mediaPlayer();
+       //se obtiene la programacion
+        conectionP();
+    }
 
+    //conexion con el stream en linea
+    public void mediaPlayer(){
         //Declaracion del media player
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -107,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        conectionP();
     }
-
 
     //Conexion para obtener la programacion
     public void conectionP(){
@@ -138,6 +154,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Program> call, Throwable t) {
 
+            }
+        });
+    }
+
+    //prepara el menu a ser mostrado a la izquierda de la pantalla
+    public void setDrawerMenu(){
+        ImageButton MenuBotton = (ImageButton) findViewById(R.id.Menu);
+        mopc.add("¿Quienes Somos?");
+        mopc.add("Redes Sociales");
+        mopc.add("Plataforma Web");
+        mopc.add("Programacion");
+        mopc.add("Compartir Radio");
+        mopc.add("Audios Grabados");
+        mopc.add("Comentar fanpage");
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new DrawerAdapter(this, R.layout.menu_adapter_view, mopc));
+
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getApplicationContext(),i+"",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this,PopActivity.class));
+            }
+        });
+
+        //ClickListener del boton con el icono del menu
+        MenuBotton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
     }
@@ -171,12 +220,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Cargar imagen desde la url proporcionada
     private void LoadImageFromUrl(String imageurl) {
         Picasso.with(this).load(imageurl).placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .into(img);
     }
 
+    //pausar el stream
     @Override
     protected void onPause() {
         super.onPause();
@@ -188,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Hilo que maneja la conexion con el stream
     class Player extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... strings) {

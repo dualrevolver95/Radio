@@ -11,4 +11,11 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="AppTheme.popTheme">
+
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+    </style>
+
 </resources>

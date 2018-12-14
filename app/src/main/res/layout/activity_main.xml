@@ -75,29 +75,59 @@
                 android:src="@drawable/record" />
         </LinearLayout>
     </LinearLayout>
-    <LinearLayout
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/colorPrimaryDark">
-        <ImageView
-            android:id="@+id/flash"
+        android:layout_weight="0.45">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorPrimaryDark">
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@color/colorAccent">
-        <ListView
-            android:id="@+id/LVP"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/flash"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-        </ListView>
+                <ImageButton
+                    android:id="@+id/Menu"
+                    android:background="#33FF33"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/menu"/>
 
-    </LinearLayout>
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorAccent">
+                <ListView
+                    android:id="@+id/LVP"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </ListView>
+            </LinearLayout>
+        </LinearLayout>
+        <ListView android:id="@+id/left_drawer"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
+            android:background="#0000FF"/>
+
+
+    </android.support.v4.widget.DrawerLayout>
 
 </LinearLayout>
