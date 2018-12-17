@@ -1,7 +1,7 @@
 package com.example.manu.radiov2.Interfaces;
 
 
-import com.example.Program;
+import com.example.manu.radiov2.Classes.Program.Program;
 import com.example.manu.radiov2.Classes.StreamInfo.StreamingInfo;
 
 import retrofit2.Call;

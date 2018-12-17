@@ -12,17 +12,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.Item;
-import com.example.Program;
+import com.example.manu.radiov2.Classes.Program.Item;
+import com.example.manu.radiov2.Classes.Program.Program;
 import com.example.manu.radiov2.Classes.StreamInfo.StreamingInfo;
 import com.example.manu.radiov2.Interfaces.RadioAPI;
 import com.example.manu.radiov2.adapter.DrawerAdapter;
@@ -147,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i< response.body().getItems().size();i++){
                     items.add(response.body().getItems().get(i));
                 }
-                ProgramAdapter adapter = new ProgramAdapter(getApplicationContext(),R.layout.adapter_view,items);
+                ProgramAdapter adapter = new ProgramAdapter(getApplicationContext(),R.layout.program_adapter_view,items);
                 lv.setAdapter(adapter);
             }
 

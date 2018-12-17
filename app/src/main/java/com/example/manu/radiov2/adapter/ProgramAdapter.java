@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.Item;
+import com.example.manu.radiov2.Classes.Program.Item;
 import com.example.manu.radiov2.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -23,6 +25,7 @@ public class ProgramAdapter extends ArrayAdapter <Item>{
     static class ViewHolder{
         TextView TitleView;
         TextView DescripView;
+        ImageView ImageView;
     }
 
     public ProgramAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Item> objects) {
@@ -31,6 +34,12 @@ public class ProgramAdapter extends ArrayAdapter <Item>{
         mResource = resource;
     }
 
+    //Cargar imagen desde la url proporcionada
+    private void LoadImageFromUrl(String imageurl,ImageView img) {
+        Picasso.with(mContext).load(imageurl).placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(img);
+    }
 
     @NonNull
     @Override
@@ -45,9 +54,11 @@ public class ProgramAdapter extends ArrayAdapter <Item>{
 
         viewHolder.TitleView = (TextView) convertView.findViewById(R.id.adapter_title);
         viewHolder.DescripView = (TextView) convertView.findViewById(R.id.adapter_description);
+        viewHolder.ImageView = (ImageView) convertView.findViewById(R.id.PIMG);
 
         viewHolder.TitleView.setText(title);
         viewHolder.DescripView.setText(description);
+        LoadImageFromUrl(getItem(position).getEnclosure().getUrl(),viewHolder.ImageView);
 
         return convertView;
     }
