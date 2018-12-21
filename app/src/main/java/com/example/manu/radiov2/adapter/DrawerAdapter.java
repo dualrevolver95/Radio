@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.Item;
+import com.example.manu.radiov2.Classes.Program.Item;
 import com.example.manu.radiov2.Activitys.MainActivity;
 import com.example.manu.radiov2.Activitys.PopActivity;
 import com.example.manu.radiov2.R;
@@ -46,7 +46,7 @@ public class DrawerAdapter extends ArrayAdapter<String> {
 
         ProgramAdapter.ViewHolder viewHolder = new ProgramAdapter.ViewHolder();
 
-        viewHolder.TitleView = (TextView) convertView.findViewById(R.id.DrawerMenuText);
+        /*viewHolder.TitleView = (TextView) convertView.findViewById(R.id.DrawerMenuText);
 
         viewHolder.TitleView.setText(title);
 
@@ -56,7 +56,7 @@ public class DrawerAdapter extends ArrayAdapter<String> {
                 Toast.makeText(mContext,position+"",Toast.LENGTH_SHORT).show();
                 mContext.startActivity(new Intent(mContext,PopActivity.class));
             }
-        });
+        });*/
 
         return convertView;
     }

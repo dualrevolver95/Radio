@@ -3,13 +3,10 @@ package com.example.manu.radiov2.Activitys;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,10 +16,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.manu.radiov2.Classes.Program.Item;
-import com.example.manu.radiov2.Classes.Program.Program;
 import com.example.manu.radiov2.Classes.StreamInfo.StreamingInfo;
 import com.example.manu.radiov2.Interfaces.RadioAPI;
+import com.example.manu.radiov2.Services.PlayerService;
 import com.example.manu.radiov2.adapter.DrawerAdapter;
 import com.example.manu.radiov2.adapter.ProgramAdapter;
 import com.google.gson.Gson;
@@ -50,10 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private RadioAPI service;
     private boolean playPause;
     private MediaPlayer mediaPlayer;
-    private ProgressDialog progressDialog;
+    private static ProgressDialog progressDialog;
     private boolean initialStage = true;
-    private ArrayList<Item> items = new ArrayList<>();
-    private final String STREAM = "http://procyon.shoutca.st:8232/;";
+    private ArrayList<Integer> items = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     //conexion con el stream en linea
     public void mediaPlayer(){
-        //Declaracion del media player
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        final Intent intent = new Intent(this,PlayerService.class);
         progressDialog = new ProgressDialog(this);
 
         //Listener para el boton Play(Pone a escuchar el stream)
@@ -92,16 +85,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!playPause) {
+
                     //btn.setText("Pause Streaming");
-
-                    if (initialStage) {
-                        new Player().execute(STREAM);
-                        conectionM();
-
-                    } else {
-                        if (!mediaPlayer.isPlaying())
-                            mediaPlayer.start();
-                    }
+                    progressDialog.setMessage("Cargando...");
+                    progressDialog.show();
+                    startService(intent);
+                    conectionM();
 
                     playPause = true;
 
@@ -115,9 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 if (playPause){
                     //btn.setText("Launch Streaming");
 
-                    if (mediaPlayer.isPlaying()) {
-                        mediaPlayer.pause();
-                    }
+                    stopService(intent);
 
                     playPause = false;
                 }
@@ -125,35 +112,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //clase que se llama en el service, para poder cancelar la barra de progreso
+    public static void cancelDialog(){
+        if (progressDialog.isShowing()) {
+            progressDialog.cancel();
+        }
+    }
+
     //Conexion para obtener la programacion
     public void conectionP(){
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-        Retrofit retrofit2 = new Retrofit.Builder()
-                .baseUrl("https://procyon.shoutca.st/recentfeed/yireh/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        service = retrofit2.create(RadioAPI.class);
-
-        Call<Program> call2 = service.getProgram();
-        call2.enqueue(new Callback<Program>() {
-            @Override
-            public void onResponse(Call<Program> call, Response<Program> response) {
-                for (int i = 0; i< response.body().getItems().size();i++){
-                    items.add(response.body().getItems().get(i));
-                }
-                ProgramAdapter adapter = new ProgramAdapter(getApplicationContext(),R.layout.program_adapter_view,items);
-                lv.setAdapter(adapter);
-            }
-
-            @Override
-            public void onFailure(Call<Program> call, Throwable t) {
-
-            }
-        });
+        items.add(R.drawable.program1);
+        items.add(R.drawable.program2);
+        items.add(R.drawable.program3);
+        items.add(R.drawable.program4);
+        items.add(R.drawable.program5);
+        items.add(R.drawable.program6);
+        items.add(R.drawable.program7);
+        ProgramAdapter adapter = new ProgramAdapter(this,R.layout.program_adapter_view,items);
+        lv.setAdapter(adapter);
     }
 
     //prepara el menu a ser mostrado a la izquierda de la pantalla
@@ -237,63 +213,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Hilo que maneja la conexion con el stream
-    class Player extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            Boolean prepared = false;
-
-            try {
-                mediaPlayer.setDataSource(strings[0]);
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        initialStage = true;
-                        playPause = false;
-                       // btn.setText("Launch Streaming");
-                        mediaPlayer.stop();
-                        mediaPlayer.reset();
-                    }
-                });
-
-                mediaPlayer.prepare();
-                prepared = true;
-
-            } catch (Exception e) {
-                Log.e("MyAudioStreamingApp", e.getMessage());
-                prepared = false;
-            }
-
-            return prepared;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-
-            if (progressDialog.isShowing()) {
-                progressDialog.cancel();
-            }
-
-            mediaPlayer.start();
-            initialStage = false;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            progressDialog.setMessage("Buffering...");
-            progressDialog.show();
-        }
-    }
-
     //Animaion de imagenFlash
     public void imgChange(){
         AnimationDrawable animation = new AnimationDrawable();
-        animation.addFrame(getResources().getDrawable(R.drawable.image1), 5000);
-        animation.addFrame(getResources().getDrawable(R.drawable.image2), 5000);
-        animation.addFrame(getResources().getDrawable(R.drawable.image3), 5000);
+        animation.addFrame(getResources().getDrawable(R.drawable.image11), 5000);
+        animation.addFrame(getResources().getDrawable(R.drawable.image22), 5000);
+        animation.addFrame(getResources().getDrawable(R.drawable.image33), 5000);
         animation.setOneShot(false);
 
         ImageView imageAnim =  (ImageView) findViewById(R.id.flash);

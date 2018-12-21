@@ -17,25 +17,22 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 
-public class ProgramAdapter extends ArrayAdapter <Item>{
+public class ProgramAdapter extends ArrayAdapter <Integer>{
 
     private Context mContext;
     private int mResource;
 
     static class ViewHolder{
-        TextView TitleView;
-        TextView DescripView;
-        ImageView ImageView;
+        ImageView img;
     }
 
-    public ProgramAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Item> objects) {
+    public ProgramAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Integer> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
     }
 
-    //Cargar imagen desde la url proporcionada
-    private void LoadImageFromUrl(String imageurl,ImageView img) {
+    private void LoadImage(int imageurl, ImageView img) {
         Picasso.with(mContext).load(imageurl).placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .into(img);
@@ -44,21 +41,20 @@ public class ProgramAdapter extends ArrayAdapter <Item>{
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String title = getItem(position).getTitle();
-        String description = getItem(position).getDescription();
+        int title = getItem(position);
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource, parent, false);
 
         ViewHolder viewHolder = new ViewHolder();
 
-        viewHolder.TitleView = (TextView) convertView.findViewById(R.id.adapter_title);
-        viewHolder.DescripView = (TextView) convertView.findViewById(R.id.adapter_description);
-        viewHolder.ImageView = (ImageView) convertView.findViewById(R.id.PIMG);
+        viewHolder.img = (ImageView) convertView.findViewById(R.id.PIMG);
 
-        viewHolder.TitleView.setText(title);
-        viewHolder.DescripView.setText(description);
-        LoadImageFromUrl(getItem(position).getEnclosure().getUrl(),viewHolder.ImageView);
+        //LoadImage(title,viewHolder.img);
+
+        Picasso.with(mContext).load(title).placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(viewHolder.img);
 
         return convertView;
     }
